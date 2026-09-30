@@ -1,0 +1,25 @@
+---
+import type { Clip } from '../data/media';
+
+interface Props {
+  clip: Clip;
+  eager?: boolean;
+  class?: string;
+}
+
+const { clip, eager = false, class: className = '' } = Astro.props;
+---
+
+<video
+  class:list={['vid', className]}
+  data-src={clip.src}
+  data-eager={eager ? '' : undefined}
+  poster={clip.poster}
+  preload={eager ? 'auto' : 'none'}
+  muted
+  loop
+  playsinline
+  disablepictureinpicture
+  aria-hidden="true"
+  tabindex="-1"
+></video>

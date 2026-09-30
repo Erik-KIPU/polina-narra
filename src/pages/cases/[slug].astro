@@ -1,0 +1,331 @@
+---
+import Base from '../../layouts/Base.astro';
+import Video from '../../components/Video.astro';
+import { cases, type Case } from '../../data/cases';
+import { href } from '../../data/site';
+
+export function getStaticPaths() {
+  return cases.map((c, i) => ({ params: { slug: c.slug }, props: { index: i } }));
+}
+
+const { index } = Astro.props as { index: number };
+const c: Case = cases[index];
+const next = cases[(index + 1) % cases.length];
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+---
+
+<Base
+  title={`${c.title} — ${c.client} · NARRA`}
+  description={c.logline}
+  scene={`Кейс ${nn(index)}`}
+  sceneTitle={c.title}
+>
+  <section class="shot" aria-labelledby="case-title">
+    <div class="shot__media"><Video clip={c.clip} eager /></div>
+    <div class="shot__shade"></div>
+    <div class="letterbox letterbox--top"></div>
+    <div class="letterbox letterbox--bottom"></div>
+
+    <div class="shot__top wrap mono">
+      <a class="shot__back" href={href('/cases/')}>← Все кейсы</a>
+      <span>Кейс {nn(index)} из {nn(cases.length - 1)}</span>
+    </div>
+
+    <div class="shot__credits wrap">
+      <p class="mono shot__client">{c.client}</p>
+      <h1 class="shot__title display" id="case-title">{c.title}</h1>
+      <p class="shot__logline">{c.logline}</p>
+    </div>
+  </section>
+
+  <div class="sheet mono">
+    <dl class="sheet__data">
+      <div><dt>Клиент</dt><dd>{c.client}</dd></div>
+      <div><dt>Год</dt><dd>{c.year}</dd></div>
+      <div><dt>Что сделали</dt><dd>{c.services.join(' · ')}</dd></div>
+    </dl>
+    <a class="sheet__cta" href={href('/contacts/')}>Обсудить похожий проект <span aria-hidden="true">→</span></a>
+  </div>
+
+  <section class="brief wrap" aria-label="Задача и решение">
+    <div class="brief__col" data-reveal>
+      <p class="mono label">Задача</p>
+      <p class="brief__text">{c.task}</p>
+    </div>
+    <div class="brief__col" data-reveal>
+      <p class="mono label">Решение</p>
+      <p class="brief__text">{c.solution}</p>
+    </div>
+  </section>
+
+  <section class="board" aria-labelledby="board-title">
+    <div class="board__stage">
+      <div class="board__viewport">
+        <ol class="board__track">
+          <li class="board__card">
+            <p class="mono label">Раскадровка</p>
+            <h2 class="board__title display" id="board-title">Кадры проекта</h2>
+            <p class="mono board__hint" aria-hidden="true">Лента идёт вправо →</p>
+          </li>
+          {
+            c.stills.map((s, i) => (
+              <li class:list={['still', i % 2 ? 'still--tall' : 'still--wide']}>
+                <figure>
+                  <span class="still__frame">
+                    <img src={s.src} alt={s.alt} loading={i < 2 ? 'eager' : 'lazy'} />
+                  </span>
+                  <figcaption class="mono">
+                    <span>Кадр {nn(i)}</span>
+                    <span>{s.alt}</span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <a class="next" href={href(`/cases/${next.slug}/`)} data-cursor="Следующий кейс">
+    <span class="next__media"><Video clip={next.clip} /></span>
+    <span class="next__shade"></span>
+    <span class="next__body wrap">
+      <span class="mono label">Следующий кейс · {next.client}</span>
+      <span class="next__title display">{next.title}</span>
+      <span class="next__arrow mono" aria-hidden="true">Смотреть →</span>
+    </span>
+  </a>
+</Base>
+
+<style>
+  /* ── Титульный кадр ── */
+  .shot {
+    position: relative;
+    height: 100svh;
+    min-height: 600px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  .shot__media,
+  .shot__shade { position: absolute; inset: 0; }
+  .shot__shade {
+    background: linear-gradient(to top, rgb(13 12 10 / 0.9) 0%, rgb(13 12 10 / 0.15) 55%, rgb(13 12 10 / 0.4));
+  }
+  .shot__top {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    padding-top: calc(var(--bar-h) + 18px);
+    color: var(--silver-70);
+  }
+  .shot__back:hover { color: var(--silver); }
+  .shot__credits {
+    position: relative;
+    z-index: 4;
+    align-self: end;
+    display: grid;
+    gap: 18px;
+    padding-bottom: calc(var(--lb) + clamp(24px, 4svh, 48px));
+  }
+  .shot__client { color: var(--edge); }
+  .shot__title {
+    font-size: clamp(72px, 13vw, 230px);
+    line-height: 0.82;
+    max-width: 12ch;
+  }
+  .shot__logline {
+    max-width: 44ch;
+    font-size: clamp(17px, 1.5vw, 22px);
+    color: var(--silver-70);
+  }
+
+  /* ── Монтажный паспорт (как ячейки шапки) ── */
+  .sheet {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    background: var(--silver);
+    color: var(--base);
+  }
+  .sheet__data {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr) minmax(0, 1.5fr);
+  }
+  .sheet__data > div {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    padding: 18px;
+    border-right: 1px solid var(--line-ink);
+  }
+  .sheet dt { color: rgb(13 12 10 / 0.5); }
+  .sheet__cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px;
+    transition: background-color 0.25s, color 0.25s;
+  }
+  .sheet__cta:hover { background: var(--base); color: var(--silver); }
+  @media (max-width: 760px) {
+    .sheet { grid-template-columns: 1fr; }
+    .sheet__data { grid-template-columns: 1fr 1fr; }
+    .sheet__data > div:nth-child(2) { border-right: 0; }
+    .sheet__data > div:nth-child(3) { grid-column: 1 / -1; border-right: 0; border-top: 1px solid var(--line-ink); }
+    .sheet__cta { border-top: 1px solid var(--line-ink); }
+  }
+
+  /* ── Задача / решение ── */
+  .brief {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gutter);
+    padding-block: clamp(90px, 16vh, 180px);
+  }
+  .brief__col { display: grid; gap: 20px; align-content: start; }
+  .brief__text {
+    font-size: clamp(22px, 2.2vw, 36px);
+    line-height: 1.22;
+    letter-spacing: -0.015em;
+    max-width: 26ch;
+  }
+  @media (max-width: 760px) { .brief { grid-template-columns: 1fr; gap: 56px; } }
+
+  /* ── Раскадровка: едет слева направо ── */
+  .board__stage {
+    min-height: 100svh;
+    display: grid;
+    align-items: center;
+    padding-block: calc(var(--bar-h) + 4svh) 4svh;
+    overflow: hidden;
+  }
+  .board__viewport {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .board__viewport::-webkit-scrollbar { display: none; }
+  .board__track {
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 2vw, 32px);
+    width: max-content;
+    padding-inline: var(--gutter);
+    will-change: transform;
+  }
+  .board__card {
+    display: grid;
+    gap: 20px;
+    width: min(70vw, 520px);
+    padding-inline: clamp(8px, 3vw, 56px);
+  }
+  .board__title { font-size: clamp(56px, 7vw, 120px); line-height: 0.88; }
+  .board__hint { color: var(--edge); }
+
+  .still figure { display: grid; gap: 12px; }
+  .still__frame { display: block; overflow: hidden; }
+  .still img {
+    height: min(64svh, 640px);
+    width: auto;
+    object-fit: cover;
+    filter: saturate(0.75) contrast(1.04) brightness(0.92);
+  }
+  .still--wide img { aspect-ratio: 3 / 2; }
+  .still--tall img { aspect-ratio: 4 / 5; }
+  .still figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--silver-45);
+  }
+  .still figcaption span:first-child { color: var(--edge); }
+  @media (max-width: 700px) {
+    .still img { height: 52svh; max-width: 84vw; }
+  }
+
+  :global(.board--pinned) .board__viewport { overflow: hidden; }
+  :global(.board--pinned) .board__track { flex-direction: row-reverse; }
+
+  /* ── Склейка со следующим кейсом ── */
+  .next {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: 88svh;
+    overflow: hidden;
+  }
+  .next__media,
+  .next__shade { position: absolute; inset: 0; }
+  .next__media :global(.vid) { transition: transform 1.2s var(--ease-out); }
+  .next:hover .next__media :global(.vid) { transform: scale(1.05); }
+  .next__shade { background: linear-gradient(to top, rgb(13 12 10 / 0.85), rgb(13 12 10 / 0.35)); }
+  .next__body {
+    position: relative;
+    display: grid;
+    gap: 18px;
+    padding-bottom: clamp(48px, 10svh, 110px);
+  }
+  .next__title { font-size: clamp(72px, 12vw, 210px); line-height: 0.84; }
+  .next__arrow { color: var(--edge); }
+</style>
+
+<script>
+  import { gsap, reduced } from '../../scripts/core';
+
+  if (!reduced) {
+    /* Первый кадр: каше сжимается, заголовок проявляется */
+    gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 0.35 })
+      .from('.shot .letterbox', { scaleY: 3, duration: 1.5, ease: 'power4.inOut' }, 0)
+      .from('.shot__media .vid', { scale: 1.2, duration: 2.2, ease: 'power3.out' }, 0)
+      .from('.shot__client, .shot__title, .shot__logline', { autoAlpha: 0, y: 30, duration: 1.2, stagger: 0.12 }, 0.5);
+
+    gsap.timeline({ scrollTrigger: { trigger: '.shot', start: 'top top', end: 'bottom top', scrub: true } })
+      .to('.shot .letterbox', { scaleY: 0, ease: 'none', duration: 0.5 }, 0)
+      .to('.shot__media', { yPercent: 16, ease: 'none', duration: 1 }, 0)
+      .to('.shot__credits', { yPercent: -20, autoAlpha: 0, ease: 'none', duration: 0.8 }, 0);
+
+    gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el, i) =>
+      gsap.from(el, {
+        autoAlpha: 0,
+        y: 40,
+        duration: 1.2,
+        delay: i * 0.1,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: el, start: 'top 85%' },
+      }),
+    );
+
+    /* Раскадровка: вертикальный скролл двигает ленту вправо */
+    const board = document.querySelector<HTMLElement>('.board')!;
+    const track = board.querySelector<HTMLElement>('.board__track')!;
+    board.classList.add('board--pinned');
+    const distance = () => Math.max(0, track.scrollWidth - innerWidth);
+
+    gsap.fromTo(
+      track,
+      { x: () => -distance() },
+      {
+        x: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: board,
+          start: 'top top',
+          end: () => `+=${distance()}`,
+          pin: '.board__stage',
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+        },
+      },
+    );
+
+    gsap.utils.toArray<HTMLElement>('.still img').forEach((img) =>
+      gsap.fromTo(img, { scale: 1.12 }, {
+        scale: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: board, start: 'top top', end: () => `+=${distance()}`, scrub: true },
+      }),
+    );
+  }
+</script>

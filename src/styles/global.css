@@ -1,0 +1,374 @@
+/* ─────────────────────────────────────────────
+   NARRA · Полина — токены
+   Плёнка (база), эмульсия, серебро (отпечаток),
+   янтарь — цвет маркировки на краю киноплёнки.
+   ───────────────────────────────────────────── */
+:root {
+  --base: #0d0c0a;
+  --emulsion: #17150f;
+  --strip: #1f1a13;
+  --silver: #e7e2d8;
+  --silver-70: rgb(231 226 216 / 0.7);
+  --silver-45: rgb(231 226 216 / 0.45);
+  --line: rgb(231 226 216 / 0.14);
+  --line-ink: rgb(13 12 10 / 0.22);
+  --edge: #d9a441;
+
+  --f-display: 'Oranienbaum', 'Times New Roman', serif;
+  --f-body: 'Onest Variable', system-ui, sans-serif;
+  --f-mono: 'Martian Mono Variable', ui-monospace, monospace;
+
+  --bar-h: 44px;
+  /* высота одной полосы каше при кадре 2.39:1 */
+  --lb: clamp(56px, calc((100svh - 100vw / 2.39) / 2), 16svh);
+  --gutter: clamp(16px, 2.4vw, 36px);
+  --ease-film: cubic-bezier(0.76, 0, 0.18, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  background: var(--base);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--base);
+  color: var(--silver);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+img,
+video { display: block; max-width: 100%; }
+
+a { color: inherit; text-decoration: none; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+
+:focus-visible {
+  outline: 2px solid var(--edge);
+  outline-offset: 3px;
+}
+
+::selection { background: var(--edge); color: var(--base); }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip {
+  position: fixed;
+  left: 8px; top: 8px;
+  z-index: 200;
+  padding: 10px 14px;
+  background: var(--silver);
+  color: var(--base);
+  font: 500 12px/1 var(--f-mono);
+  transform: translateY(-160%);
+}
+.skip:focus { transform: none; }
+
+/* ── Типографика ── */
+.display {
+  font-family: var(--f-display);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+}
+
+.mono {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-stretch: 87.5%;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.label { color: var(--silver-45); }
+
+.lede {
+  font-size: clamp(18px, 1.6vw, 24px);
+  line-height: 1.35;
+  color: var(--silver-70);
+  max-width: 34ch;
+}
+
+.wrap { padding-inline: var(--gutter); }
+
+/* ── Шапка: светлая полоса-«хлопушка» с ячейками ── */
+.bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 60;
+  height: var(--bar-h);
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) repeat(3, minmax(0, 0.62fr)) minmax(0, 0.8fr);
+  background: var(--silver);
+  color: var(--base);
+  border-bottom: 1px solid var(--line-ink);
+}
+
+.bar__cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-inline: 18px;
+  border-right: 1px solid var(--line-ink);
+  white-space: nowrap;
+  transition: background-color 0.25s, color 0.25s;
+}
+.bar__cell:last-child { border-right: 0; }
+
+.bar__brand { gap: 14px; }
+
+.logo {
+  font-family: var(--f-body);
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.bar__who {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 520px) {
+  .bar__role { display: none; }
+}
+
+a.bar__cell:hover { background: rgb(13 12 10 / 0.06); }
+a.bar__cell[aria-current='page'] { background: var(--base); color: var(--silver); }
+
+.bar__tc {
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+
+.rec {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #b3402a;
+  animation: rec 1.6s steps(2, jump-none) infinite;
+}
+@keyframes rec { 50% { opacity: 0.15; } }
+
+.bar__menu { display: none; }
+.bar__menu [aria-hidden] { transition: transform 0.4s var(--ease-out); }
+.menu-open .bar__menu [aria-hidden] { transform: rotate(180deg); }
+
+@media (max-width: 860px) {
+  .bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .bar__nav, .bar__tc { display: none; }
+  .bar__menu {
+    display: flex;
+    justify-content: space-between;
+    min-width: 124px;
+  }
+}
+
+/* Мобильное меню */
+.menu {
+  position: fixed;
+  inset: var(--bar-h) 0 0;
+  z-index: 59;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px var(--gutter) 24px;
+  background: var(--silver);
+  color: var(--base);
+  clip-path: inset(0 0 100% 0);
+  visibility: hidden;
+  transition: clip-path 0.6s var(--ease-film), visibility 0s linear 0.6s;
+}
+.menu-open .menu {
+  clip-path: inset(0 0 0 0);
+  visibility: visible;
+  transition: clip-path 0.6s var(--ease-film);
+}
+.menu__links a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-ink);
+  font-family: var(--f-display);
+  font-size: clamp(48px, 15vw, 88px);
+  line-height: 1;
+}
+.menu__links .mono { color: rgb(13 12 10 / 0.5); }
+
+/* ── Подвал ── */
+.foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) repeat(2, minmax(0, 0.7fr)) minmax(0, 0.5fr);
+  min-height: var(--bar-h);
+  background: var(--silver);
+  color: var(--base);
+}
+.foot > * {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-right: 1px solid var(--line-ink);
+}
+.foot > *:last-child { border-right: 0; justify-content: flex-end; }
+a.foot__link:hover { background: rgb(13 12 10 / 0.06); }
+@media (max-width: 700px) {
+  .foot { grid-template-columns: 1fr 1fr; }
+  .foot > *:first-child { grid-column: 1 / -1; border-right: 0; border-bottom: 1px solid var(--line-ink); }
+  .foot > *:last-child { grid-column: 1 / -1; justify-content: flex-start; border-top: 1px solid var(--line-ink); }
+}
+
+/* ── Зерно плёнки ── */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.075;
+  background-image: var(--grain, none);
+  background-size: 160px;
+  animation: grain 0.9s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  17% { transform: translate(-3%, 2%); }
+  33% { transform: translate(2%, -4%); }
+  50% { transform: translate(-4%, -1%); }
+  67% { transform: translate(3%, 3%); }
+  83% { transform: translate(-1%, -3%); }
+}
+
+/* ── Шторка перехода между сценами ── */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  background: var(--base);
+  pointer-events: none;
+  clip-path: inset(0 0 100% 0);
+  animation: curtain-lift 0.95s var(--ease-film) 0.15s both;
+}
+.curtain__slate {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  animation: slate-out 0.35s ease 0.05s both;
+}
+.curtain__scene { color: var(--edge); }
+.curtain__title { font-size: clamp(44px, 7vw, 110px); }
+
+.curtain.is-closing {
+  pointer-events: auto;
+  animation: curtain-drop 0.6s var(--ease-film) both;
+}
+.curtain.is-closing .curtain__slate { animation: slate-in 0.35s ease 0.25s both; }
+
+@keyframes curtain-lift {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 0 100% 0); }
+}
+@keyframes curtain-drop {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes slate-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes slate-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ── Курсор-подпись над медиа ── */
+.cursor {
+  position: fixed;
+  left: 0; top: 0;
+  z-index: 80;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.cursor__label {
+  display: block;
+  padding: 9px 12px 8px;
+  background: var(--silver);
+  color: var(--base);
+  transform: translate(14px, 14px) scale(0.6);
+  transform-origin: 0 0;
+  transition: transform 0.35s var(--ease-out);
+}
+.cursor.has-label { opacity: 1; }
+.cursor.has-label .cursor__label { transform: translate(14px, 14px) scale(1); }
+
+/* ── Видео ── */
+.vid {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.55) contrast(1.06) brightness(0.82) sepia(0.12);
+}
+
+/* ── Каше: чёрные полосы широкого экрана 2.39:1 ── */
+.letterbox {
+  position: absolute;
+  left: 0; right: 0;
+  z-index: 3;
+  height: var(--lb);
+  background: var(--base);
+  pointer-events: none;
+}
+.letterbox--top { top: 0; transform-origin: top; }
+.letterbox--bottom { bottom: 0; transform-origin: bottom; }
+
+/* ── Кнопка-ссылка со стрелкой ── */
+.go {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px 13px;
+  border: 1px solid currentColor;
+  transition: background-color 0.3s, color 0.3s;
+}
+.go:hover { background: var(--silver); color: var(--base); }
+.go__arrow { transition: transform 0.35s var(--ease-out); }
+.go:hover .go__arrow { transform: translateX(5px); }
+
+/* ── Сниженная анимация ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain { display: none; }
+}

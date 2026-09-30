@@ -1,0 +1,611 @@
+---
+import Base from '../layouts/Base.astro';
+import Video from '../components/Video.astro';
+import { href, site } from '../data/site';
+import { clips } from '../data/media';
+import { cases } from '../data/cases';
+
+const acts = [
+  {
+    numeral: 'I',
+    title: 'Смысл',
+    text: 'Сначала разбираюсь, о чём бренд и кому он говорит. Без этого любой красивый кадр — случайность.',
+    clip: clips.lettering,
+  },
+  {
+    numeral: 'II',
+    title: 'Структура',
+    text: 'Собираю систему: знак, шрифты, цвет, правила. Чтобы бренд узнавали в любом формате — от визитки до reels.',
+    clip: clips.layouts,
+  },
+  {
+    numeral: 'III',
+    title: 'Ясность',
+    text: 'Финальный кадр должен читаться за секунду. Убираю лишнее, пока не останется главное.',
+    clip: clips.shadow,
+  },
+];
+
+const byService = (slug: string) => href(`/cases/${slug}/`);
+const roles = [
+  { name: 'Фирменный стиль', desc: 'Логотип · айдентика · гайдлайн · носители', clip: clips.pencil, href: byService('kontur') },
+  { name: 'Полиграфия', desc: 'Каталоги · журналы · упаковка · печать', clip: clips.print, href: byService('tirazh') },
+  { name: 'Социальные сети', desc: 'Стратегия · контент-план · сетка · reels', clip: clips.photoshoot, href: byService('lenta') },
+  { name: 'Съёмки', desc: 'Продукт · fashion · backstage · видео', clip: clips.backstage, href: byService('za-kadrom') },
+];
+
+// Кадры для двух встречных плёнок внизу страницы.
+const stills = cases.flatMap((c) => c.stills.slice(0, 3).map((s) => ({ ...s, slug: c.slug })));
+const rowA = stills.filter((_, i) => i % 2 === 0);
+const rowB = stills.filter((_, i) => i % 2 === 1);
+---
+
+<Base title="Полина — NARRA STUDIO" scene="Сцена 01" sceneTitle="Обо мне">
+  <!-- Раккорд: отсчёт перед первым показом за сессию -->
+  <div class="leader" aria-hidden="true">
+    <svg class="leader__rings" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="92"></circle>
+      <circle cx="100" cy="100" r="70"></circle>
+      <line x1="0" y1="100" x2="200" y2="100"></line>
+      <line x1="100" y1="0" x2="100" y2="200"></line>
+    </svg>
+    <div class="leader__sweep"></div>
+    <span class="leader__count display">3</span>
+  </div>
+
+  <section class="hero" aria-label="Полина, основатель NARRA">
+    <div class="hero__media"><Video clip={clips.window} eager /></div>
+    <div class="hero__shade"></div>
+    <div class="letterbox letterbox--top"></div>
+    <div class="letterbox letterbox--bottom">
+      <p class="hero__sub">{site.motto}</p>
+    </div>
+
+    <div class="hero__credits">
+      <p class="hero__pre mono">NARRA STUDIO представляет</p>
+      <h1 class="hero__name display" data-split>{site.person}</h1>
+      <p class="hero__role">{site.role}</p>
+    </div>
+    <p class="hero__cue mono" aria-hidden="true">Листайте</p>
+  </section>
+
+  <section class="synopsis" aria-labelledby="synopsis-label">
+    <div class="synopsis__media"><Video clip={clips.silk} /></div>
+    <div class="synopsis__inner wrap">
+      <p class="mono label" id="synopsis-label">Синопсис</p>
+      <p class="synopsis__text" data-words>
+        Меня зовут Полина. Я основала NARRA — студию, которая собирает визуальный язык брендов: фирменный стиль,
+        полиграфию, соцсети и съёмки. Каждый проект я веду как фильм — с идеей, раскадровкой и финальным монтажом.
+      </p>
+    </div>
+  </section>
+
+  <section class="acts" aria-label="Как я работаю: три акта">
+    <div class="acts__stage">
+      {
+        acts.map((act, i) => (
+          <article class="act" data-act={i}>
+            <div class="act__media">
+              <Video clip={act.clip} />
+            </div>
+            <div class="act__shade" />
+            <div class="act__body wrap">
+              <p class="mono act__num">Акт {act.numeral} из III</p>
+              <h2 class="act__title display">{act.title}</h2>
+              <p class="act__text">{act.text}</p>
+            </div>
+          </article>
+        ))
+      }
+      <ol class="acts__progress mono" aria-hidden="true">
+        {acts.map((act) => <li>{act.numeral}</li>)}
+      </ol>
+    </div>
+  </section>
+
+  <section class="roles wrap" aria-labelledby="roles-title">
+    <header class="roles__head">
+      <p class="mono label">В ролях</p>
+      <h2 class="roles__title display" id="roles-title">Чем занимается студия</h2>
+    </header>
+    <ul class="roles__list">
+      {
+        roles.map((role) => (
+          <li>
+            <a class="role" href={role.href} data-preview={role.clip.src} data-poster={role.clip.poster} data-cursor="Кейс">
+              <span class="role__name display">{role.name}</span>
+              <span class="role__desc mono">{role.desc}</span>
+              <span class="role__go mono" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="roles__preview" aria-hidden="true">
+      <video class="vid" muted loop playsinline preload="none"></video>
+    </div>
+  </section>
+
+  <section class="strips" aria-labelledby="strips-title">
+    <div class="strip strip--a" data-strip="-1" aria-hidden="true">
+      <div class="strip__track">
+        {[...rowA, ...rowA].map((s) => <img class="strip__frame" src={s.src.replace('w=1400', 'w=640')} alt="" loading="lazy" />)}
+      </div>
+    </div>
+    <div class="strips__cta wrap">
+      <p class="mono label">Следующая сцена</p>
+      <h2 class="strips__title display" id="strips-title">
+        <a href={href('/cases/')} data-cursor="Смотреть">Кейсы</a>
+      </h2>
+      <p class="lede">{cases.length} проектов на одной плёнке — от фирменного стиля до съёмок.</p>
+    </div>
+    <div class="strip strip--b" data-strip="1" aria-hidden="true">
+      <div class="strip__track">
+        {[...rowB, ...rowB].map((s) => <img class="strip__frame" src={s.src.replace('w=1400', 'w=640')} alt="" loading="lazy" />)}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ── Раккорд ── */
+  .leader {
+    position: fixed;
+    inset: 0;
+    z-index: 96;
+    display: none;
+    place-items: center;
+    background: #1c1a15;
+    color: var(--silver);
+  }
+  :global(html.play-leader) .leader { display: grid; }
+  .leader > * { grid-area: 1 / 1; }
+  .leader__rings {
+    width: min(70vmin, 520px);
+    fill: none;
+    stroke: var(--silver-45);
+    stroke-width: 0.6;
+  }
+  .leader__sweep {
+    width: min(70vmin, 520px) ;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: conic-gradient(rgb(231 226 216 / 0.16) var(--sweep, 0deg), transparent 0);
+  }
+  .leader__count {
+    font-size: min(46vmin, 340px);
+    line-height: 1;
+    transform: translateY(4%);
+  }
+
+  /* ── Первый экран ── */
+  .hero {
+    position: relative;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+  .hero__media,
+  .hero__shade { position: absolute; inset: 0; }
+  .hero__media :global(.vid) { transform: scale(1.08); }
+  .hero__shade {
+    background:
+      radial-gradient(120% 80% at 50% 45%, transparent 30%, rgb(13 12 10 / 0.75) 100%),
+      linear-gradient(to bottom, rgb(13 12 10 / 0.25), rgb(13 12 10 / 0.35));
+  }
+  .hero__credits {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    padding-inline: var(--gutter);
+  }
+  .hero__pre { color: var(--silver-70); margin-bottom: clamp(12px, 2vh, 24px); }
+  .hero__name {
+    font-size: clamp(96px, 21vw, 340px);
+    line-height: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+  .hero__name :global(.char-mask) { padding: 0.12em 0.03em 0.06em; margin: -0.12em -0.03em -0.06em; }
+  .hero__role {
+    margin-top: clamp(14px, 2.4vh, 28px);
+    font-size: clamp(16px, 1.5vw, 22px);
+    color: var(--silver-70);
+  }
+  .letterbox--bottom {
+    display: grid;
+    place-items: center;
+    padding: 0 var(--gutter);
+  }
+  .hero__sub {
+    max-width: 64ch;
+    text-wrap: balance;
+    text-align: center;
+    font-size: clamp(14px, 1.25vw, 18px);
+    font-weight: 500;
+    color: var(--silver);
+  }
+  .hero__cue {
+    position: absolute;
+    z-index: 4;
+    right: var(--gutter);
+    bottom: 18px;
+    color: var(--silver-45);
+    writing-mode: vertical-rl;
+  }
+
+  /* ── Синопсис ── */
+  .synopsis {
+    position: relative;
+    padding-block: clamp(120px, 22vh, 240px);
+    overflow: hidden;
+  }
+  .synopsis__media {
+    position: absolute;
+    inset: 0;
+    opacity: 0.32;
+  }
+  .synopsis__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(var(--base), transparent 30%, transparent 70%, var(--base));
+  }
+  .synopsis__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: var(--gutter);
+  }
+  .synopsis__text {
+    font-size: clamp(26px, 3.4vw, 56px);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    font-weight: 380;
+    max-width: 24ch;
+  }
+  @media (max-width: 760px) {
+    .synopsis__inner { grid-template-columns: 1fr; }
+  }
+
+  /* ── Три акта ── */
+  .acts__stage { position: relative; }
+  .act {
+    position: relative;
+    height: 100svh;
+    min-height: 560px;
+    display: grid;
+    align-items: end;
+    overflow: hidden;
+  }
+  .act__media,
+  .act__shade { position: absolute; inset: 0; }
+  .act__shade {
+    background: linear-gradient(to top, rgb(13 12 10 / 0.88), rgb(13 12 10 / 0.2) 60%, rgb(13 12 10 / 0.45));
+  }
+  .act__body {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-areas: 'num num' 'title text';
+    align-items: end;
+    gap: 16px var(--gutter);
+    padding-bottom: clamp(40px, 9vh, 96px);
+  }
+  .act__num { grid-area: num; color: var(--edge); }
+  .act__title {
+    grid-area: title;
+    font-size: clamp(88px, 17vw, 300px);
+    line-height: 0.78;
+  }
+  .act__text {
+    grid-area: text;
+    max-width: 30ch;
+    font-size: clamp(17px, 1.45vw, 22px);
+    line-height: 1.4;
+    color: var(--silver-70);
+  }
+  .acts__progress {
+    position: absolute;
+    z-index: 2;
+    top: calc(var(--bar-h) + 24px);
+    right: var(--gutter);
+    display: none;
+    gap: 18px;
+  }
+  .acts__progress li { color: var(--silver-45); transition: color 0.3s; }
+  .acts__progress li.is-active { color: var(--edge); }
+
+  /* Кинематографический режим: акты сменяют друг друга в одном кадре. */
+  :global(.acts--pinned) .acts__stage { height: 100svh; overflow: hidden; }
+  :global(.acts--pinned) .act { position: absolute; inset: 0; height: auto; }
+  :global(.acts--pinned) .acts__progress { display: flex; }
+
+  @media (max-width: 760px) {
+    .act__body { grid-template-columns: 1fr; grid-template-areas: 'num' 'title' 'text'; }
+  }
+
+  /* ── В ролях ── */
+  .roles {
+    position: relative;
+    padding-block: clamp(100px, 18vh, 200px);
+  }
+  .roles__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: var(--gutter);
+    margin-bottom: clamp(40px, 8vh, 80px);
+  }
+  .roles__title {
+    font-size: clamp(44px, 6vw, 104px);
+    max-width: 12ch;
+  }
+  .roles__list { border-top: 1px solid var(--line); }
+  .role {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) auto;
+    grid-template-areas: 'desc name go';
+    align-items: baseline;
+    gap: var(--gutter);
+    padding-block: clamp(18px, 3vh, 30px);
+    border-bottom: 1px solid var(--line);
+    transition: color 0.3s;
+  }
+  .role__name {
+    grid-area: name;
+    font-size: clamp(44px, 6.4vw, 112px);
+    line-height: 0.95;
+    transition: transform 0.5s var(--ease-out);
+  }
+  .role__desc { grid-area: desc; color: var(--silver-45); }
+  .role__go { grid-area: go; color: var(--silver-45); transition: color 0.3s, transform 0.4s var(--ease-out); }
+  .role:hover .role__name,
+  .role:focus-visible .role__name { transform: translateX(12px); }
+  .role:hover .role__go { color: var(--edge); transform: translateX(6px); }
+  .roles__list:hover .role:not(:hover) { color: var(--silver-45); }
+
+  .roles__preview {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: clamp(220px, 22vw, 380px);
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    clip-path: inset(50% 0 50% 0);
+    transition: opacity 0.3s, clip-path 0.5s var(--ease-film);
+  }
+  .roles__preview.is-on { opacity: 1; clip-path: inset(0 0 0 0); }
+
+  @media (max-width: 760px) {
+    .roles__head { grid-template-columns: 1fr; }
+    .role { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'name go' 'desc desc'; gap: 8px 16px; }
+    .roles__preview { display: none; }
+  }
+
+  /* ── Встречные плёнки ── */
+  .strips {
+    padding-block: clamp(80px, 14vh, 160px);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(36px, 7vh, 72px);
+  }
+  .strip {
+    --h: clamp(110px, 15vw, 210px);
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    padding-block: 20px;
+    background: var(--strip);
+    -webkit-mask: var(--perf) repeat-x top left / 22px 20px, linear-gradient(#000 0 0) center / 100% calc(100% - 40px) no-repeat,
+      var(--perf) repeat-x bottom left / 22px 20px;
+    mask: var(--perf) repeat-x top left / 22px 20px, linear-gradient(#000 0 0) center / 100% calc(100% - 40px) no-repeat,
+      var(--perf) repeat-x bottom left / 22px 20px;
+    --perf: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='20'%3E%3Cpath fill-rule='evenodd' d='M0 0h22v20H0z M7 6h8a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z'/%3E%3C/svg%3E");
+  }
+  .strip--a { transform: rotate(-1.2deg); }
+  .strip--b { transform: rotate(0.8deg); }
+  .strip__track {
+    display: flex;
+    gap: 6px;
+    width: max-content;
+    will-change: transform;
+  }
+  .strip__frame {
+    height: var(--h);
+    width: calc(var(--h) * 1.5);
+    object-fit: cover;
+    filter: grayscale(0.5) sepia(0.18) contrast(1.05) brightness(0.72);
+  }
+  .strips__cta {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 18px;
+  }
+  .strips__title {
+    padding-top: 0.14em;
+    font-size: clamp(96px, 20vw, 320px);
+    line-height: 0.8;
+    text-transform: uppercase;
+  }
+  .strips__title a { transition: color 0.3s; }
+  .strips__title a:hover { color: var(--edge); }
+  .strips__cta .lede { margin-inline: auto; }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, reduced, finePointer, lenis } from '../scripts/core';
+  import { SplitText } from 'gsap/SplitText';
+
+  gsap.registerPlugin(SplitText);
+  const root = document.documentElement;
+
+  /* ── Раккорд 3-2-1: один раз за сессию ── */
+  let seen = false;
+  try {
+    seen = sessionStorage.getItem('narra-leader') === '1';
+    sessionStorage.setItem('narra-leader', '1');
+  } catch {}
+
+  function playLeader(): Promise<void> {
+    if (seen || reduced) return Promise.resolve();
+    root.classList.add('play-leader');
+    lenis?.stop();
+    const leader = document.querySelector<HTMLElement>('.leader')!;
+    const count = leader.querySelector('.leader__count')!;
+    return new Promise((resolve) => {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          root.classList.remove('play-leader');
+          lenis?.start();
+          resolve();
+        },
+      });
+      ['3', '2', '1'].forEach((n, i) => {
+        tl.call(() => { count.textContent = n; }, [], i * 0.5);
+        tl.fromTo(leader, { '--sweep': '0deg' }, { '--sweep': '360deg', duration: 0.5, ease: 'none' }, i * 0.5);
+      });
+      tl.to(leader, { backgroundColor: '#e7e2d8', duration: 0.04 }, 1.5)
+        .to(leader, { autoAlpha: 0, duration: 0.35, ease: 'power2.out' }, 1.56);
+      leader.addEventListener('click', () => tl.progress(1), { once: true });
+    });
+  }
+
+  /* ── Титры первого экрана ── */
+  const name = document.querySelector<HTMLElement>('[data-split]')!;
+  const split = SplitText.create(name, { type: 'chars', mask: 'chars', charsClass: 'char' });
+
+  function playTitles() {
+    if (reduced) return;
+    gsap.timeline({ defaults: { ease: 'expo.out' } })
+      .from('.hero .letterbox--top', { scaleY: 3.2, duration: 1.6, ease: 'power4.inOut' }, 0)
+      .from('.hero .letterbox--bottom', { scaleY: 3.2, duration: 1.6, ease: 'power4.inOut' }, 0)
+      .from('.hero__media .vid', { scale: 1.25, duration: 2.4, ease: 'power3.out' }, 0)
+      .from('.hero__pre', { autoAlpha: 0, y: 12, duration: 1 }, 0.5)
+      .from(split.chars, { yPercent: 110, duration: 1.4, stagger: 0.06 }, 0.6)
+      .from('.hero__role', { autoAlpha: 0, y: 12, duration: 1 }, 1.1)
+      .from('.hero__sub', { autoAlpha: 0, duration: 0.8, ease: 'none' }, 1.5)
+      .from('.hero__cue', { autoAlpha: 0, duration: 0.8 }, 1.8);
+  }
+
+  // Шторка перехода поднимается ~1 с — титры стартуют под ней.
+  playLeader().then(playTitles);
+
+  if (!reduced) {
+    /* Прокрутка первого экрана: каше уезжает, кадр «раскрывается» */
+    gsap.timeline({
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
+    })
+      .to('.hero .letterbox--top, .hero .letterbox--bottom', { scaleY: 0, ease: 'none', duration: 0.5 }, 0)
+      .to('.hero__credits', { yPercent: -35, autoAlpha: 0, ease: 'none', duration: 0.7 }, 0)
+      .to('.hero__media', { yPercent: 18, ease: 'none', duration: 1 }, 0);
+
+    /* Синопсис: слова проявляются по мере чтения */
+    const words = SplitText.create('[data-words]', { type: 'words' }).words;
+    gsap.fromTo(
+      words,
+      { opacity: 0.14 },
+      {
+        opacity: 1,
+        stagger: 0.1,
+        ease: 'none',
+        scrollTrigger: { trigger: '.synopsis__text', start: 'top 78%', end: 'bottom 45%', scrub: true },
+      },
+    );
+
+    /* Три акта: склейки внутри одного закреплённого кадра */
+    const section = document.querySelector<HTMLElement>('.acts')!;
+    const acts = gsap.utils.toArray<HTMLElement>('.act');
+    const marks = gsap.utils.toArray<HTMLElement>('.acts__progress li');
+    section.classList.add('acts--pinned');
+    marks[0]?.classList.add('is-active');
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top top',
+        end: () => `+=${innerHeight * (acts.length - 0.4)}`,
+        pin: '.acts__stage',
+        scrub: 0.6,
+        onUpdate: (self) => {
+          const idx = Math.min(acts.length - 1, Math.round(self.progress * (acts.length - 1)));
+          marks.forEach((m, i) => m.classList.toggle('is-active', i === idx));
+        },
+      },
+    });
+
+    acts.forEach((act, i) => {
+      const title = act.querySelector('.act__title');
+      const body = act.querySelectorAll('.act__num, .act__text');
+      if (i === 0) {
+        tl.to(act.querySelector('.vid'), { scale: 1.08, ease: 'none', duration: 1 }, 0);
+        return;
+      }
+      const at = i - 0.55;
+      tl.fromTo(act, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'power2.inOut', duration: 0.55 }, at)
+        .from(act.querySelector('.vid'), { scale: 1.25, ease: 'power2.out', duration: 1 }, at)
+        .from(title, { yPercent: 40, autoAlpha: 0, ease: 'power3.out', duration: 0.5 }, at + 0.2)
+        .from(body, { autoAlpha: 0, y: 16, ease: 'power2.out', duration: 0.35 }, at + 0.3)
+        .to(acts[i - 1].querySelector('.act__body'), { autoAlpha: 0, yPercent: -12, duration: 0.3 }, at);
+    });
+    tl.to({}, { duration: 0.35 });
+
+    /* Две плёнки едут навстречу друг другу; быстрый скролл — быстрее лента */
+    gsap.utils.toArray<HTMLElement>('[data-strip]').forEach((strip) => {
+      const track = strip.querySelector<HTMLElement>('.strip__track')!;
+      const [from, to] = Number(strip.dataset.strip) < 0 ? [0, -50] : [-50, 0];
+      const loop = gsap.fromTo(track, { xPercent: from }, { xPercent: to, duration: 60, ease: 'none', repeat: -1 });
+      ScrollTrigger.create({
+        trigger: strip,
+        start: 'top bottom',
+        end: 'bottom top',
+        onToggle: (self) => (self.isActive ? loop.play() : loop.pause()),
+        onUpdate: (self) => {
+          const boost = 1 + Math.min(Math.abs(self.getVelocity()) / 120, 12);
+          gsap.to(loop, { timeScale: boost, duration: 0.2, overwrite: true });
+          gsap.to(loop, { timeScale: 1, duration: 1.2, delay: 0.2 });
+        },
+      });
+    });
+  }
+
+  /* ── Превью ролика у курсора над списком услуг ── */
+  if (finePointer && !reduced) {
+    const preview = document.querySelector<HTMLElement>('.roles__preview')!;
+    const video = preview.querySelector('video')!;
+    const xTo = gsap.quickTo(preview, 'x', { duration: 0.5, ease: 'power3' });
+    const yTo = gsap.quickTo(preview, 'y', { duration: 0.5, ease: 'power3' });
+    const list = document.querySelector<HTMLElement>('.roles__list')!;
+
+    list.addEventListener('pointermove', (e) => {
+      const w = preview.offsetWidth;
+      xTo(e.clientX < innerWidth / 2 ? e.clientX + 48 : e.clientX - w - 48);
+      yTo(e.clientY - preview.offsetHeight / 2);
+    });
+    list.querySelectorAll<HTMLElement>('.role').forEach((role) => {
+      role.addEventListener('pointerenter', () => {
+        if (video.dataset.current !== role.dataset.preview) {
+          video.dataset.current = role.dataset.preview;
+          video.poster = role.dataset.poster!;
+          video.src = role.dataset.preview!;
+        }
+        video.play().catch(() => {});
+        preview.classList.add('is-on');
+      });
+    });
+    list.addEventListener('pointerleave', () => {
+      preview.classList.remove('is-on');
+      video.pause();
+    });
+  }
+</script>

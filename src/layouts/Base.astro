@@ -1,0 +1,112 @@
+---
+import '@fontsource/oranienbaum/400.css';
+import '@fontsource-variable/onest';
+import '@fontsource-variable/martian-mono/wdth.css';
+import '../styles/global.css';
+
+import { href, nav, site, slates } from '../data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  scene: string;
+  sceneTitle: string;
+}
+
+const { title, description = site.motto, scene, sceneTitle } = Astro.props;
+const path = Astro.url.pathname;
+const home = href('/');
+const isCurrent = (link: string) => (link === home ? path === home : path.startsWith(link));
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0d0c0a" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" href={href('/favicon.svg')} type="image/svg+xml" />
+    <link rel="preconnect" href="https://videos.pexels.com" />
+    <link rel="preconnect" href="https://images.pexels.com" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">К содержанию</a>
+
+    <header class="bar">
+      <a class="bar__cell bar__brand" href={home} aria-label="NARRA — на главную">
+        <span class="logo">NARR@</span>
+        <span class="bar__who mono">{site.person}<span class="bar__role"> — основатель студии</span></span>
+      </a>
+      {
+        nav.map((item) => (
+          <a
+            class="bar__cell bar__nav mono"
+            href={item.href}
+            aria-current={isCurrent(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <div class="bar__cell bar__tc mono" title="Таймкод: сколько вы уже прокрутили">
+        <span class="rec" aria-hidden="true"></span>
+        <span data-timecode aria-hidden="true">00:00:00:00</span>
+      </div>
+      <button class="bar__cell bar__menu mono" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu">
+        <span data-menu-label>Меню</span>
+        <span aria-hidden="true">↓</span>
+      </button>
+    </header>
+
+    <nav class="menu" id="menu" aria-label="Меню">
+      <ul class="menu__links">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+                <span class="mono">{item.scene}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mono">Instagram — @{site.instagram}</p>
+    </nav>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="foot mono">
+      <p>© {site.year} {site.studio} · {site.person}</p>
+      <a class="foot__link" href={`https://instagram.com/${site.instagram}`} target="_blank" rel="noopener">Instagram ↗</a>
+      <a class="foot__link" href={href('/contacts/')}>Обсудить проект</a>
+      <a class="foot__link" href="#main" data-to-top>Наверх ↑</a>
+    </footer>
+
+    <div class="curtain" aria-hidden="true">
+      <div class="curtain__slate">
+        <span class="curtain__scene mono">{scene}</span>
+        <span class="curtain__title display">{sceneTitle}</span>
+      </div>
+    </div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="cursor" aria-hidden="true"><span class="cursor__label mono"></span></div>
+
+    <script type="application/json" id="slates" set:html={JSON.stringify(slates)} />
+    <script>
+      import { scrollToY } from '../scripts/core';
+
+      document.querySelector('[data-to-top]')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollToY(0);
+      });
+    </script>
+  </body>
+</html>
